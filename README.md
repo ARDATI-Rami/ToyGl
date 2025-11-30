@@ -11,6 +11,50 @@ The current implementation focuses on:
 
 The main entry point is `run_simulation.py`, which constructs an `Epithelium` object, advances the system using explicit time integration, and writes out the evolving cell geometry. The core numerical and geometric logic is implemented in the `src/` directory (nodes, filaments, facets, cells, and epithelial tissue), while the `paraview_macros/` and plotting utilities support post-processing and figure generation.
 
+## Model overview (scientific summary)
+
+ToyGl implements a three-dimensional cell mechanics model based on a mass–spring system. Cells are represented as closed polyhedral shells whose surfaces are discretized into nodes, filaments, and triangular facets. The framework supports single-cell and multi-cell epithelial configurations, including growth and cell–cell adhesion.
+
+At the mechanical level, the model combines:
+
+- Linear elastic springs along filaments, connecting pairs of nodes.
+- An internal pressure–volume relation at the cell level.
+- External body forces (e.g. gravity) and viscous damping.
+- A penalty-based contact interaction with a basal plane.
+- Optional adhesive springs between nodes belonging to different cells.
+
+The global state of the system is the collection of all nodal positions and velocities. At each time step, ToyGl assembles the total force on each node from all contributing mechanisms and advances the system using explicit time integration (Euler or, in legacy variants, RK4).
+
+### Visualisation of cell representation and growth
+
+Two reference images illustrate the geometric representation used in ToyGl:
+
+- **Initial cell geometry** – The cell is initialized as an icosahedron, with:
+  - nodes in red,
+  - filaments in green,
+  - facets in orange.
+- **Grown cell geometry** – The same cell after pressure-driven growth, with the surface refined to thousands of facets.
+
+These correspond to the figures below:
+
+![Initial cell as icosahedron (nodes in red, filaments in green, facets in orange).](images/ToyGl_cell_icosahedre.png)
+
+*Figure 1 – Initial cell representation as an icosahedron. Nodes are shown in red, filaments in green, and facets in orange. The closed triangulated surface defines the initial cell geometry.*
+
+![Same cell after pressure-induced growth with approximately 3000 facets.](images/Cell_at_3000_facet.png)
+
+*Figure 2 – Same cell after pressure-induced growth. Internal pressure and surface refinement lead to a significantly larger cell with a highly tessellated surface (on the order of 3000 facets).* 
+
+### Filament division schematic
+
+During growth, legacy variants of the model support mesh refinement by splitting overstretched filaments. When a filament length exceeds a division threshold, a new node is introduced at its midpoint, and surrounding facets are reconnected such that the surface remains closed and mechanically consistent.
+
+The following schematic illustrates this process:
+
+![Schematic of filament division: a long filament shared by two facets is split by inserting a new node at its midpoint, creating four new facets.](images/filament_division.jpg)
+
+*Figure 3 – Schematic of filament division. A filament shared by two neighbouring facets is divided when its length exceeds a threshold (\(l_{\mathrm{divide}}\)). A new node is inserted at the midpoint, new filaments are created, and the affected facets are redefined. The implementation ensures that the mechanical forces are updated consistently before and after division.*
+
 ## How to run
 
 ### 1. Install environment
