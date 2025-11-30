@@ -37,20 +37,13 @@ Two reference images illustrate the geometric representation used in ToyGl:
 
 These correspond to the figures below:
 
-<table>
-  <tr>
-    <td align\="center">
-      <img src\="images/ToyGl_cell_icosahedre.png" alt\="Initial cell as icosahedron (nodes in red, filaments in green, facets in orange)." width\="350"/>
-      <br/>
-      <em\>Figure 1 \– Initial cell representation as an icosahedron. Nodes are shown in red, filaments in green, and facets in orange. The closed triangulated surface defines the initial cell geometry.</em\>
-    </td>
-    <td align\="center">
-      <img src\="images/Cell_at_3000_facet.png" alt\="Same cell after pressure\-induced growth with approximately 3000 facets." width\="350"/>
-      <br/>
-      <em\>Figure 2 \– Same cell after pressure\-induced growth. Internal pressure and surface refinement lead to a significantly larger cell with a highly tessellated surface (on the order of 3000 facets).</em\>
-    </td>
-  </tr>
-</table>
+![Initial cell as icosahedron (nodes in red, filaments in green, facets in orange).](images/ToyGl_cell_icosahedre.png)
+
+*Figure 1 – Initial cell representation as an icosahedron. Nodes are shown in red, filaments in green, and facets in orange. The closed triangulated surface defines the initial cell geometry.*
+
+![Same cell after pressure-induced growth with approximately 3000 facets.](images/Cell_at_3000_facet.png)
+
+*Figure 2 – Same cell after pressure-induced growth. Internal pressure and surface refinement lead to a significantly larger cell with a highly tessellated surface (on the order of 3000 facets).* 
 
 ### Filament division schematic
 
