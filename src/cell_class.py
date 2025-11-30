@@ -17,11 +17,10 @@ class Cell:
     A class to describe a 3D cell
     """
     liste_tri3 = []  # list of 3 nodes ids describing a facet, facing outside
-    volume = 1.  # calculé à chaque pas de temps
-    dp_dv = 2.  # rigidity
+    dp_dv = 1.  # rigidity
     _next_id = 0
     pressure = 0
-    target_volume = 50
+    target_volume = 10
 
     def __init__(self):
         """
@@ -299,14 +298,13 @@ class Cell:
         Returns:
         float: The volume of the convex hull of the 3D object.
         """
-        print(f"Calculating volume ")
+        logger.info(f"Calculating volume ")
         # Ensure points are in a numpy array of shape (N, 3)
         points = np.array([node.position for node in self.nodes])
         # print(f"Points : {points}")
         # Ensure there are enough points and they are in 3D
         if points.shape[0] < 4 or points.shape[1] != 3:
             raise ValueError("There must be at least 4 points in 3D space.")
-
         try:
             hull = ConvexHull(points=points)
             self.volume = hull.volume
@@ -316,14 +314,27 @@ class Cell:
             return None
         return self.volume
 
-
     def calculate_pressure(self):
         """
         Calculates the pressure inside the cell based on its current volume.
+        The pressure increases as the volume decreases and goes to zero
+        once the target volume is reached.
+
+        Parameters:
+        target_volume : float
+            The volume you want the cell to reach.
         """
-        # Calculate the pressure
-        self.pressure = (self.volume0 - self.volume)*self.dp_dv
-        logger.dont_debug(f"New pressure : {self.pressure}")
+        # Check if the current volume has reached or exceeded the target volume
+        self.calculate_volume()
+        # if self.volume >= self.target_volume:
+        #     self.pressure = 0 # stop pressure we arrived at target volume
+        # else:
+        #     # Otherwise, calculate the pressure as usual
+        #     self.pressure = (self.volume - self.target_volume) * self.dp_dv
+        self.pressure = (self.volume - self.target_volume) * self.dp_dv
+
+        # Log the calculated pressure
+        logger.superior_info(f"New pressure: {self.pressure}, New volume: {self.volume}")
 
     def apply_pressure_to_nodes(self):
         """
@@ -527,6 +538,7 @@ class Cell:
                 else:
                     d3 = Filament(node1=new_node, node2=third_nodes[0], cell_id=self.sequential_id)
                     d4 = Filament(node1=third_nodes[1], node2=new_node, cell_id=self.sequential_id)
+
 
                 # Find adjacent filaments for the new facets
                 adf1 = next(fil for fil in all_concerned_filaments if fil.composed_of(third_nodes[0], filament.node1))

@@ -24,7 +24,7 @@ class Filament:
         Returns:
             dict: A dictionary of default properties.
         """
-        return {'radius': 0.05, 'linear_mass': 0.2, 'rig_EA': 8, 'color': (0.0, 1.0, 0.0)}
+        return {'radius': 0.05, 'linear_mass': 0.2, 'rig_EA': 1, 'color': (0.0, 1.0, 0.0)}
 
     def __new__(cls, node1, node2, cell_id, properties=None, type='Structure'):
         """
@@ -76,13 +76,11 @@ class Filament:
         self.uuid = uuid.UUID(hashlib.md5(combined_uuids.encode()).hexdigest())
         self.cell_id = cell_id
         self.node_properties_list = [{} for _ in range(4)]
-        # self.filament_properties_list = [{} for _ in range(4)]
-        self.filament_properties_list = {'radius': 0.2, 'mass': 0.2, 'stiffness': 1000.0, 'color': (0.2, 0.2, 0.2)}
-
 
         self.properties = properties if properties is not None else Filament.default_properties()
         self.node_families=[]
-        self.lfree_new = 2
+        self.redefine_lfree()
+        # self.lfree_new = 2
         # Assign a unique ID to this instance and increment the class-level ID counter
         self.sequential_id = Filament._next_id
         Filament._next_id += 1
@@ -206,10 +204,10 @@ class Filament:
         l0 = self.lfree_new  # Free length of the filament
         l = self.length  # Current length of the filament
         v_filament = self.vector  # Vector representing the filament
-        EA = self.properties["rig_EA"] if self.type =='cell' else -1*self.properties["rig_EA"]   # Stiffness of the filament
+        EA = self.properties["rig_EA"] if self.type =='cell' else self.properties["rig_EA"]   # Stiffness of the filament
         # Calculate the elastic force
         if l != 0:  # To avoid division by zero
-            v_force = v_filament * EA * (l - l0) / (l0 * l)
+            v_force = v_filament * EA * (l - l0) / (l0 * l) # f = kx
         else:
             v_force = np.zeros_like(v_filament)
 

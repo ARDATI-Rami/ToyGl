@@ -11,21 +11,22 @@ sys.path.append(os.path.join(os.path.dirname(__file__), 'src'))
 
 # Import your classes and utilities
 from src.eptm_class import Epithelium
-from src.logging_utils import logger
+from src.logging_utils import logger,clear_log_file
 
 
 
 
 # Global variable to keep track of the number of evolution steps
 t = 0
-dt = 0.002 ** 1
+dt = 0.002*0.5
 
-evolution_limit = 300  # Limit the number of dynamic evolution steps to 3
+evolution_limit = 4000  # Limit the number of dynamic evolution steps to 3
 
 # Set the delay duration in seconds (e.g., 0.5 seconds)
 frame_delay = 0# 0.00001
 
 def run_simulation():
+    clear_log_file()  # Ensure the log file is cleared at the start of the simulation
     save_dir = '/home/ardati/PycharmProjects/pickled_toygl_tissues'
     global t, dt, t_div_elem, last_interval_index,save_steps,Data_dir
     while eptm.step < evolution_limit:
@@ -93,7 +94,9 @@ if __name__ == '__main__':
         print(f"step : {eptm.step}")
         step = eptm.step
     else:
-        Gcells = eptm.create_an_eptm_of_two_growing_cells()
+        # Gcells = eptm.create_an_eptm_of_two_growing_cells()
+        Gcells = eptm.create_an_eptm_of_a_growing_cells()
+
         cellA = eptm.cells[-1]
 
     # Run the simulation

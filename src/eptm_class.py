@@ -127,7 +127,7 @@ class Epithelium:
         node_ids = [node[0].sequential_id for node in all_nodes]
 
         cell_ids = [cell_id for _, cell_id in all_nodes]
-        self.adhesions = [] if self.step %1000 ==0 else self.adhesions
+        self.adhesions = [] if self.step >150 ==0 else self.adhesions
         # Build KDTree based on node positions
         tree = KDTree(node_positions)
 
@@ -144,8 +144,8 @@ class Epithelium:
                     break
             if nearest_neighbor:
                 node_neighbors[node_ids[i]] = nearest_neighbor
-                # Add logging for neighbors
-                logger.info(f"Node {node_ids[i]} has neighbor Node {nearest_neighbor}")
+                # # Add logging for neighbors
+                # logger.info(f"Node {node_ids[i]} has neighbor Node {nearest_neighbor}")
         neighbor_counts = {}
         for node_id, neighbor_id in node_neighbors.items():
             if neighbor_id in neighbor_counts:
@@ -153,8 +153,8 @@ class Epithelium:
             else:
                 neighbor_counts[neighbor_id] = 1
 
-        for neighbor, count in neighbor_counts.items():
-            logger.info(f"Node {neighbor} is a neighbor to {count} other nodes")
+        # for neighbor, count in neighbor_counts.items():
+            # logger.info(f"Node {neighbor} is a neighbor to {count} other nodes")
 
         # Fix for the tuple issue
         nodes_dict = {node[0].sequential_id: node[0] for node in all_nodes}
@@ -350,7 +350,7 @@ class Epithelium:
         Nodes = self.nodes
         Filaments = self.get_all_filaments()
         # Update adhesion forces
-        self.update_adhesion()
+        # self.update_adhesion()
         Filaments.extend(self.adhesions)
 
 
@@ -402,10 +402,11 @@ class Epithelium:
         # Detailed force logging for debugging
         if debug:
             for i, node in enumerate(Nodes):
-                logger.debug(f"Node {i} Ground Contact Force: {ground_contact_forces[i]}")
-                logger.debug(f"Node {i} Gravity Force: {gravity_forces[i]}")
-                logger.debug(f"Node {i} Viscous Damping Force: {viscous_damping_forces[i]}")
-                logger.debug(f"Node {i} Total Forces: {node.forces}")
+                logger.debug(f"At step : {self.step}")
+                logger.debug(f"{node} Ground Contact Force: {ground_contact_forces[i]}")
+                logger.debug(f"{node} Gravity Force: {gravity_forces[i]}")
+                logger.debug(f"{node} Viscous Damping Force: {viscous_damping_forces[i]}")
+                logger.debug(f"{node} Total Forces: {node.forces}")
 
             for i, filament in enumerate(Filaments):
                 logger.debug(f"Filament {i} Elastic Force: {elastic_forces[i]}")
@@ -466,10 +467,10 @@ class Epithelium:
         Run all the behaviour functionalities of the epithelium.
         """
         logger.superior_info(f"###Time {t} ###")
-        for cell in self.cells:
-            print(f"Cell behavior")
-            if cell.division_counter <= 10000:
-                cell.cell_behaviour()
+        # for cell in self.cells:
+        #     print(f"Cell behavior")
+        #     if cell.division_counter <= 10000:
+        #         cell.cell_behaviour()
 
     # functions for debbug
     def visualize_filament_forces(self, Nodes, Filaments, plot_resultant_forces=False):
@@ -523,7 +524,7 @@ class Epithelium:
         plt.title('Filament Forces Visualization')
         plt.show()
 
-    def fast_export_facets(self, output_dir='output/', filename='epithelium_facets', step=0):
+    def fast_export_facets(self, output_dir='output/', step=0):
         # Remove the output directory if it exists
         if os.path.exists(output_dir) and step == 1:
             shutil.rmtree(output_dir)
@@ -537,7 +538,6 @@ class Epithelium:
             points = []
             faces = []
             normals = []
-
             # Collect all points, normals, and faces in the cell
             for facet in cell.facets:
                 facet_points = [node.position for node in facet.get_unique_nodes()]
@@ -550,16 +550,22 @@ class Epithelium:
                 # Repeat the normal for each face
                 normals.append(normal)
 
+            # Get the pressure of the current cell (assuming cell.pressure exists)
+            cell_pressure = cell.pressure  # Access the pressure attribute
+            cell_volume = cell.volume  # Access the pressure attribute
+
             # Create the PyVista PolyData object
             poly_data = pv.PolyData(points, faces)
 
             # Assign normals to cell_data, since they correspond to facets (faces)
             poly_data.cell_data['Normals'] = normals
-
+            # Add pressure and volume as field data (global per-cell data)
+            poly_data.field_data['cell_pressure'] = [cell_pressure]  # One value for the entire cell
+            poly_data.field_data['cell_volume'] = [cell_volume]
             # Save each cell to a VTK PolyData file (.vtp) for fast access in ParaView
-            output_filepath = os.path.join(output_dir, f"{filename}_cell_{cell_idx}_{step}.vtp")
+            output_filepath = os.path.join(output_dir, f"cell_{cell_idx}_step_{step}.vtp")
             poly_data.save(output_filepath, binary=True)
-            print(f"Cell {cell_idx} facets saved as: {output_filepath}")
+            # print(f"Cell {cell_idx} facets saved as: {output_filepath}")
 
         # Exporting adhesions separately
         adhesion_points = []
@@ -583,11 +589,11 @@ class Epithelium:
             # If no adhesion data, create an empty PolyData object
             adhesion_poly_data = pv.PolyData()
         # Save adhesions to a separate file
-        adhesion_output_filepath = os.path.join(output_dir, f"{filename}_adhesions_{step}.vtp")
+        adhesion_output_filepath = os.path.join(output_dir, f"adhesions_step_{step}.vtp")
         adhesion_poly_data.save(adhesion_output_filepath, binary=True)
-        print(f"Adhesions saved as: {adhesion_output_filepath}")
+        # print(f"Adhesions saved as: {adhesion_output_filepath}")
 
 
-        print(f"All facets and adhesions exported for step {step}.")
+        # print(f"All facets and adhesions exported for step {step}.")
 
 # ------------------------------------------------------------------------------

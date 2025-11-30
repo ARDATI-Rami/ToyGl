@@ -30,8 +30,10 @@ logging.addLevelName(SUPERIOR_INFO, 'SUPERIOR_INFO')
 
 # Clear the contents of the debug log file
 log_file_path = '../debug.log'
-with open(log_file_path, 'w'):
-    pass  # Opening in 'w' mode truncates the file, no need to write anything
+def clear_log_file():
+    # Clear the contents of the debug log file
+    with open(f"{log_file_path[1:]}", 'w'):
+        pass  # Opening in 'w' mode truncates the file, no need to write anything
 
 class DebugOnlyFilter(logging.Filter):
     def filter(self, record):
@@ -119,7 +121,7 @@ logger.addHandler(console_handler)
 def example_usage():
     logger.info('This is a regular info message.')  # Will be displayed in bright white
     logger.superior_info('Example of Superior Info')  # Will be displayed in blue with ### prefix and suffix
-    logger.dont_debug('This debug message will go to the file.')
+    logger.debug('This debug message will go to the file.')
     logger.dont_debug('This message will not be logged anywhere.')
 
     # Using info_once to log only once with bright green color
