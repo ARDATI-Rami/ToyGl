@@ -172,3 +172,7 @@ The repository also contains a set of historical prototype scripts that were use
 - `legacy/depot.py` – Experimental export and adhesion/neighbor utilities, not wired into the main pipeline.
 
 These scripts can be useful to understand the historical evolution of the model or to explore alternative visualization ideas, but new development should target the main API in `src/` and `run_simulation.py`.
+
+## Acknowledgments
+
+This project contains code that originated from Julien Averseng. Parts of the original implementation are available in the `legacy` folder — thank you to Julien Averseng for the original work and contributions.

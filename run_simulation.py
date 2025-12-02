@@ -60,7 +60,7 @@ def run_simulation():
 
 if __name__ == '__main__':
     # Define the test name
-    test_name = "Test_12"
+    test_name = "Test_01_Dec"
 
     # Start timing
     start_time = time.time()
